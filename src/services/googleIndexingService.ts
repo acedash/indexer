@@ -1,8 +1,7 @@
 import { google } from 'googleapis';
-import { JWT } from 'google-auth-library';
 
 export class GoogleIndexingService {
-  private auth: JWT;
+  private auth: any;
   private indexing: any;
 
   constructor(credentials: any) {
@@ -11,7 +10,7 @@ export class GoogleIndexingService {
       key: credentials.private_key,
       scopes: ['https://www.googleapis.com/auth/indexing'],
     });
-    this.indexing = google.indexing({ version: 'v3', auth: this.auth });
+    this.indexing = google.indexing({ version: 'v3', auth: this.auth } as any);
   }
 
   async notify(url: string) {
