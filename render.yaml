@@ -23,7 +23,8 @@ services:
       - key: PORT
         value: 10000
       - key: PRISMA_CLIENT_ENGINE_TYPE
-        value: library
+        value: binary
+
 
 
   - type: redis
