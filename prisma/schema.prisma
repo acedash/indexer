@@ -1,0 +1,56 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Project {
+  id                    String   @id @default(uuid())
+  name                  String
+  domain                String?
+  googleServiceAccount  String?  // JSON string of the service account key
+  apiKey                String   @unique @default(uuid())
+  urls                  Url[]
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@map("projects")
+}
+
+model SignalPage {
+  id        String   @id @default(uuid())
+  slug      String   @unique
+  urls      Url[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("signal_pages")
+}
+
+model Url {
+  id              String   @id @default(uuid())
+  url             String   @unique
+  status          String   @default("pending") // pending, processing, done, failed
+  indexingStatus  String   @default("unverified") // unverified, indexed, not_indexed
+  lastIndexedAt   DateTime?
+  retryCount      Int      @default(0)
+  
+  projectId       String?
+  project         Project? @relation(fields: [projectId], references: [id])
+  
+  signalPageId    String?
+  signalPage      SignalPage? @relation(fields: [signalPageId], references: [id])
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("urls")
+}
+
+

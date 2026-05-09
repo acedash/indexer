@@ -1,0 +1,61 @@
+import { Request, Response } from 'express';
+import prisma from '../lib/prisma.js';
+import { indexerQueue } from '../lib/queue.js';
+
+export const submitUrls = async (req: Request, res: Response) => {
+  // Accept either { urls: [..] } or a single { url: "..." }
+  let urls = req.body.urls;
+  const singleUrl = req.body.url;
+  const apiKey = req.headers['x-api-key'] as string;
+
+  if (!urls && typeof singleUrl === "string") {
+    urls = [singleUrl];
+  }
+
+  if (!urls || !Array.isArray(urls)) {
+    return res.status(400).json({ error: "Please provide an array of URLs or a single 'url' field" });
+  }
+
+  try {
+    let project = null;
+    if (apiKey) {
+      project = await prisma.project.findUnique({
+        where: { apiKey },
+      });
+    }
+
+    const results = [];
+
+    for (const url of urls) {
+      // 1. Save/Update in DB
+      const dbUrl = await prisma.url.upsert({
+        where: { url },
+        update: { 
+          status: 'pending', 
+          updatedAt: new Date(),
+          projectId: project?.id || null
+        },
+        create: { 
+          url, 
+          status: 'pending',
+          projectId: project?.id || null
+        },
+      });
+
+      // 2. Add to Queue
+      await indexerQueue.add('index-url', { urlId: dbUrl.id, url: dbUrl.url });
+
+      results.push(dbUrl);
+    }
+
+    res.status(201).json({
+      message: `${urls.length} URLs submitted successfully`,
+      project: project ? project.name : 'Default',
+      data: results,
+    });
+
+  } catch (error) {
+    console.error('Error submitting URLs:', error);
+    res.status(500).json({ error: 'Failed to submit URLs' });
+  }
+};
