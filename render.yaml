@@ -14,7 +14,7 @@ services:
           property: connectionString
       - key: REDIS_URL
         fromService:
-          type: keyvalue
+          type: redis
           name: indexer-redis
           property: connectionString
       - key: DOMAIN
@@ -22,12 +22,11 @@ services:
       - key: PORT
         value: 10000
 
-databases:
-  - name: indexer-db
-    plan: free
-
-redis:
-  - name: indexer-redis
+  - type: redis
+    name: indexer-redis
     plan: free
     ipAllowList: [] # Allow all internal traffic
 
+databases:
+  - name: indexer-db
+    plan: free
