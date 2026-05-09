@@ -26,6 +26,8 @@ databases:
   - name: indexer-db
     plan: free
 
-keyvalues:
+redis:
   - name: indexer-redis
     plan: free
+    ipAllowList: [] # Allow all internal traffic
+
