@@ -22,8 +22,7 @@ services:
         sync: false # Set this to your Render URL after the first deploy
       - key: PORT
         value: 10000
-      - key: PRISMA_CLIENT_ENGINE_TYPE
-        value: binary
+
 
 
 
