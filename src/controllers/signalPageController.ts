@@ -5,24 +5,25 @@ export const getSignalPage = async (req: Request, res: Response) => {
     const { slug } = req.params;
 
     if (typeof slug !== 'string') {
-      return res.status(400).send('Invalid slug');
+        return res.status(400).send('Invalid slug');
     }
 
-    const signalPage = await prisma.signalPage.findUnique({
-      where: { slug },
-      include: { urls: true },
-    }) as any;
+    try {
+        const signalPage = await prisma.signalPage.findUnique({
+            where: { slug },
+            include: { urls: true },
+        }) as any;
 
-    if (!signalPage) {
-      return res.status(404).send('Signal page not found');
-    }
+        if (!signalPage) {
+            return res.status(404).send('Signal page not found');
+        }
 
-    // Return a bot-friendly HTML page
-    const linksHtml = signalPage.urls
-      .map((u) => `<li><a href="${u.url}">${u.url}</a></li>`)
-      .join('\n');
+        // Return a bot-friendly HTML page
+        const linksHtml = signalPage.urls
+            .map((u: any) => `<li><a href="${u.url}">${u.url}</a></li>`)
+            .join('\n');
 
-    const html = `
+        const html = `
       <!DOCTYPE html>
       <html>
       <head>
@@ -41,9 +42,9 @@ export const getSignalPage = async (req: Request, res: Response) => {
       </html>
     `;
 
-    res.header('Content-Type', 'text/html');
-    res.send(html);
-  } catch (error) {
-    res.status(500).send('Error loading signal page');
-  }
+        res.header('Content-Type', 'text/html');
+        res.send(html);
+    } catch (error) {
+        res.status(500).send('Error loading signal page');
+    }
 };
