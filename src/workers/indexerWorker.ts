@@ -29,13 +29,13 @@ const worker = new Worker(
       if (!urlRecord) throw new Error('URL not found in database');
 
       // 2. Assign to a Discovery Signal Page (The "Referral" trick)
-      // We look for a signal page created in the last 1 hour that has < 50 URLs
+      // Find a recent signal page (last 2 hours) with room for more URLs
       let signalPage = await prisma.signalPage.findFirst({
         where: {
-          createdAt: { gte: new Date(Date.now() - 60 * 60 * 1000) },
-          urls: { some: {} } // Just a placeholder, we'll check count manually
+          createdAt: { gte: new Date(Date.now() - 2 * 60 * 60 * 1000) }
         },
-        include: { _count: { select: { urls: true } } }
+        include: { _count: { select: { urls: true } } },
+        orderBy: { createdAt: 'desc' }
       });
 
       if (!signalPage || signalPage._count.urls >= 50) {
@@ -81,14 +81,22 @@ const worker = new Worker(
         const pings = [
           pingSearchEngines(url), // Ping the target URL
           pingSearchEngines(signalPageUrl), // Ping the discovery page
-          pingSearchEngines(`${domain}/sitemap.xml`) // Ping the sitemap
+          pingSearchEngines(`${domain}/sitemap.xml`), // Ping the sitemap
+          pingSearchEngines(`${domain}/recent`) // Ping the recent hub
         ];
 
         // The "Rocket" Core: Submit the DISCOVERY page to Google Indexing API
         // This forces Google to crawl our page, which contains the backlink.
         if (googleIndexer) {
-          pings.push(googleIndexer.notify(signalPageUrl) as any);
-          pings.push(googleIndexer.notify(url) as any); // Also try target directly
+          try {
+            console.log(`[Google API] Notifying about signal page: ${signalPageUrl}`);
+            await googleIndexer.notify(signalPageUrl);
+            
+            console.log(`[Google API] Notifying about target URL: ${url}`);
+            await googleIndexer.notify(url);
+          } catch (e: any) {
+            console.error(`[Google API Error] ${e.message}`, e.response?.data);
+          }
         }
         
         await Promise.allSettled(pings);

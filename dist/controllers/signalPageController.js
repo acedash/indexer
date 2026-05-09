@@ -1,28 +1,21 @@
-import { Request, Response } from 'express';
 import prisma from '../lib/prisma.js';
-
-export const getSignalPage = async (req: Request, res: Response) => {
+export const getSignalPage = async (req, res) => {
     const { slug } = req.params;
-
     if (typeof slug !== 'string') {
         return res.status(400).send('Invalid slug');
     }
-
     try {
         const signalPage = await prisma.signalPage.findUnique({
             where: { slug },
             include: { urls: true },
-        }) as any;
-
+        });
         if (!signalPage) {
             return res.status(404).send('Signal page not found');
         }
-
         // Return a bot-friendly HTML page
         const linksHtml = signalPage.urls
-            .map((u: any) => `<li><a href="${u.url}">${u.url}</a></li>`)
+            .map((u) => `<li><a href="${u.url}">${u.url}</a></li>`)
             .join('\n');
-
         const html = `
       <!DOCTYPE html>
       <html>
@@ -52,10 +45,11 @@ export const getSignalPage = async (req: Request, res: Response) => {
       </body>
       </html>
     `;
-
         res.header('Content-Type', 'text/html');
         res.send(html);
-    } catch (error) {
+    }
+    catch (error) {
         res.status(500).send('Error loading signal page');
     }
 };
+//# sourceMappingURL=signalPageController.js.map

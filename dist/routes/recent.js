@@ -1,26 +1,22 @@
 import { Router } from 'express';
 import prisma from '../lib/prisma.js';
-
 const router = Router();
-
 router.get('/', async (req, res) => {
-  try {
-    const urls = await prisma.url.findMany({
-      orderBy: { updatedAt: 'desc' },
-      take: 50,
-    });
-
-    if (req.headers.accept?.includes('application/json')) {
-      return res.json(urls.map((u: any) => ({
-        id: u.id,
-        url: u.url,
-        status: u.status,
-        indexingStatus: u.indexingStatus,
-        updatedAt: u.updatedAt
-      })));
-    }
-
-    let html = `
+    try {
+        const urls = await prisma.url.findMany({
+            orderBy: { updatedAt: 'desc' },
+            take: 50,
+        });
+        if (req.headers.accept?.includes('application/json')) {
+            return res.json(urls.map((u) => ({
+                id: u.id,
+                url: u.url,
+                status: u.status,
+                indexingStatus: u.indexingStatus,
+                updatedAt: u.updatedAt
+            })));
+        }
+        let html = `
       <!DOCTYPE html>
       <html>
       <head>
@@ -43,27 +39,25 @@ router.get('/', async (req, res) => {
           <h1>Recent Indexing Signal Activity</h1>
           <ul>
     `;
-
-    urls.forEach((u: any) => {
-      html += `
+        urls.forEach((u) => {
+            html += `
         <li>
           <a href="${u.url}" class="url" target="_blank">${u.url}</a>
           <span class="status status-${u.status}">${u.status}</span>
         </li>
       `;
-    });
-
-    html += `
+        });
+        html += `
           </ul>
         </div>
       </body>
       </html>
     `;
-
-    res.send(html);
-  } catch (error) {
-    res.status(500).send('Error loading recent activity');
-  }
+        res.send(html);
+    }
+    catch (error) {
+        res.status(500).send('Error loading recent activity');
+    }
 });
-
 export default router;
+//# sourceMappingURL=recent.js.map

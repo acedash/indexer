@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import prisma from '../lib/prisma.js';
 import { indexerQueue } from '../lib/queue.js';
+import { pingSearchEngines } from '../services/pingService.js';
 
 export const submitUrls = async (req: Request, res: Response) => {
   // Accept either { urls: [..] } or a single { url: "..." }
@@ -30,13 +31,13 @@ export const submitUrls = async (req: Request, res: Response) => {
       // 1. Save/Update in DB
       const dbUrl = await prisma.url.upsert({
         where: { url },
-        update: { 
-          status: 'pending', 
+        update: {
+          status: 'pending',
           updatedAt: new Date(),
           projectId: project?.id || null
         },
-        create: { 
-          url, 
+        create: {
+          url,
           status: 'pending',
           projectId: project?.id || null
         },
@@ -47,6 +48,10 @@ export const submitUrls = async (req: Request, res: Response) => {
 
       results.push(dbUrl);
     }
+
+    // 3. Trigger Global Sitemap Ping (Discovery Boost)
+    const domain = process.env.DOMAIN || 'http://localhost:3000';
+    pingSearchEngines(`${domain}/sitemap.xml`).catch(e => console.warn('Global sitemap ping failed:', e.message));
 
     res.status(201).json({
       message: `${urls.length} URLs submitted successfully`,
