@@ -14,6 +14,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+app.use(express.static('public')); // Serve the dashboard
 
 // Routes
 app.use('/submit', submitRoutes);
@@ -41,10 +42,12 @@ app.listen(PORT, () => {
   const domain = process.env.DOMAIN || `http://localhost:${PORT}`;
   console.log(`
 🚀 Rocket Indexer Core is running!
+🖥️ Dashboard: ${domain}
 🌐 Public Domain: ${domain}
 📄 Sitemap: ${domain}/sitemap.xml
 xml RSS Feed: ${domain}/rss.xml
 🧲 Recent Pages: ${domain}/recent-pages
   `);
+
 });
 

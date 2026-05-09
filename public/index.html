@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rocket Indexer | High-Speed Core</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.5);
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+        body {
+            background: var(--bg);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        .background-glow {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 50% 50%, #1e293b 0%, #0f172a 100%);
+            z-index: -1;
+        }
+
+        .glow-orb {
+            position: absolute;
+            width: 600px; height: 600px;
+            background: var(--primary-glow);
+            filter: blur(120px);
+            border-radius: 50%;
+            z-index: -1;
+            opacity: 0.3;
+            animation: drift 20s infinite alternate;
+        }
+
+        @keyframes drift {
+            from { transform: translate(-10%, -10%); }
+            to { transform: translate(10%, 10%); }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            padding: 40px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        p.subtitle {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #cbd5e1;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            color: white;
+            font-size: 1rem;
+            resize: none;
+            transition: border-color 0.3s;
+            line-height: 1.6;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--primary-glow);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 15px -3px var(--primary-glow);
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            background: #4f46e5;
+            box-shadow: 0 20px 25px -5px var(--primary-glow);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .stat-card {
+            background: rgba(15, 23, 42, 0.5);
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #818cf8;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        #status-message {
+            margin-top: 20px;
+            text-align: center;
+            padding: 12px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .success { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+        .error { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #475569;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-glow"></div>
+    <div class="glow-orb"></div>
+    
+    <div class="container">
+        <header>
+            <h1>Rocket Indexer</h1>
+            <p class="subtitle">High-Intensity Discovery & Signal Core</p>
+        </header>
+
+        <div class="form-group">
+            <label for="urls">Paste URLs (one per line)</label>
+            <textarea id="urls" placeholder="https://example.com/page-1&#10;https://example.com/page-2"></textarea>
+        </div>
+
+        <button class="btn-submit" id="submit-btn">BLAST SIGNALS</button>
+
+        <div id="status-message"></div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="stat-total">-</div>
+                <div class="stat-label">Total Links</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat-indexed">-</div>
+                <div class="stat-label">Indexed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat-pending">-</div>
+                <div class="stat-label">Signal Queue</div>
+            </div>
+        </div>
+
+        <footer>
+            Built with Rocket Core Engine &bull; Enterprise Discovery Logic
+        </footer>
+    </div>
+
+    <script>
+        const submitBtn = document.getElementById('submit-btn');
+        const urlsTextarea = document.getElementById('urls');
+        const statusMsg = document.getElementById('status-message');
+
+        submitBtn.addEventListener('click', async () => {
+            const urls = urlsTextarea.value.split('\n').filter(u => u.trim() !== '');
+            
+            if (urls.length === 0) {
+                showStatus('Please paste at least one URL', 'error');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'LAUNCHING SIGNALS...';
+
+            try {
+                const response = await fetch('/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ urls })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showStatus(`Successfully launched signals for ${urls.length} URLs!`, 'success');
+                    urlsTextarea.value = '';
+                    loadStats();
+                } else {
+                    showStatus(data.error || 'Failed to launch signals', 'error');
+                }
+            } catch (err) {
+                showStatus('Network error occurred', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'BLAST SIGNALS';
+            }
+        });
+
+        function showStatus(msg, type) {
+            statusMsg.textContent = msg;
+            statusMsg.className = type;
+            statusMsg.style.display = 'block';
+            setTimeout(() => { statusMsg.style.display = 'none'; }, 5000);
+        }
+
+        async function loadStats() {
+            try {
+                const res = await fetch('/recent-pages');
+                const data = await res.json();
+                // We'll update stats once we have a proper stats endpoint
+                document.getElementById('stat-total').textContent = data.length || 0;
+                document.getElementById('stat-pending').textContent = data.filter(u => u.status === 'pending').length;
+                document.getElementById('stat-indexed').textContent = data.filter(u => u.indexingStatus === 'indexed').length;
+            } catch (e) {}
+        }
+
+        loadStats();
+        setInterval(loadStats, 10000);
+    </script>
+</body>
+</html>
