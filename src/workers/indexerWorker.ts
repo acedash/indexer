@@ -57,13 +57,17 @@ const worker = new Worker(
 
       // Initialize Google Indexing if key is available
       let googleIndexer: GoogleIndexingService | null = null;
-      if (urlRecord.project?.googleServiceAccount) {
+      const googleKey = urlRecord.project?.googleServiceAccount || process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+
+      if (googleKey) {
         try {
-          googleIndexer = new GoogleIndexingService(urlRecord.project.googleServiceAccount);
+          const credentials = typeof googleKey === 'string' ? JSON.parse(googleKey) : googleKey;
+          googleIndexer = new GoogleIndexingService(credentials);
         } catch (e) {
           console.warn('Failed to initialize Google Indexing Service:', e);
         }
       }
+
 
       const signals = [
         { label: 'Signal 1 (Instant)', waitTime: 30 * 1000 },
