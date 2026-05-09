@@ -1,17 +1,16 @@
 import { google } from 'googleapis';
+import { JWT } from 'google-auth-library';
 
 export class GoogleIndexingService {
-  private auth;
-  private indexing;
+  private auth: JWT;
+  private indexing: any;
 
-  constructor(serviceAccountJson: string) {
-    const credentials = JSON.parse(serviceAccountJson);
-    this.auth = new google.auth.JWT(
-      credentials.client_email,
-      undefined,
-      credentials.private_key,
-      ['https://www.googleapis.com/auth/indexing']
-    );
+  constructor(credentials: any) {
+    this.auth = new google.auth.JWT({
+      email: credentials.client_email,
+      key: credentials.private_key,
+      scopes: ['https://www.googleapis.com/auth/indexing'],
+    });
     this.indexing = google.indexing({ version: 'v3', auth: this.auth });
   }
 
@@ -37,7 +36,7 @@ export class GoogleIndexingService {
       });
       return response.data;
     } catch (error: any) {
-      console.error(`Google Indexing API Get Status error for ${url}:`, error.message);
+      console.error(`Google Indexing API status error for ${url}:`, error.message);
       throw error;
     }
   }

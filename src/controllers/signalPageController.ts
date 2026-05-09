@@ -2,13 +2,16 @@ import { Request, Response } from 'express';
 import prisma from '../lib/prisma.js';
 
 export const getSignalPage = async (req: Request, res: Response) => {
-  const { slug } = req.params;
+    const { slug } = req.params;
 
-  try {
+    if (typeof slug !== 'string') {
+      return res.status(400).send('Invalid slug');
+    }
+
     const signalPage = await prisma.signalPage.findUnique({
       where: { slug },
       include: { urls: true },
-    });
+    }) as any;
 
     if (!signalPage) {
       return res.status(404).send('Signal page not found');

@@ -83,11 +83,12 @@ const worker = new Worker(
         // The "Rocket" Core: Submit the DISCOVERY page to Google Indexing API
         // This forces Google to crawl our page, which contains the backlink.
         if (googleIndexer) {
-          pings.push(googleIndexer.notify(signalPageUrl));
-          pings.push(googleIndexer.notify(url)); // Also try target directly
+          pings.push(googleIndexer.notify(signalPageUrl) as any);
+          pings.push(googleIndexer.notify(url) as any); // Also try target directly
         }
         
         await Promise.allSettled(pings);
+
 
         if (signal.waitTime > 0) {
           await wait(signal.waitTime);
